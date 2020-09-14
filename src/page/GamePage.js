@@ -9,6 +9,7 @@ import {
 import Map from "../components/Map";
 import Plane from "../components/Plane";
 import EnemyPlane from "../components/EnemyPlane";
+import Bullet from "../components/Bullet";
 import { game } from "../Game";
 import { hitTestObject } from "../utils";
 
@@ -19,8 +20,12 @@ export default defineComponent({
     // 对方
     const { enemyPlanes, moveEnemyPlanes } = useEnemyPlanes();
 
+    // 子弹
+    const { bullets, moveBullets, addBullet } = useBullets();
+
     const handleTicker = () => {
-      moveEnemyPlanes();
+      // moveEnemyPlanes();
+      moveBullets();
       // 检测碰撞
       enemyPlanes.forEach((enemy) => {
         if (hitTestObject(enemy, planeInfo)) {
@@ -38,12 +43,25 @@ export default defineComponent({
       game.ticker.remove(handleTicker);
     });
 
+    const handleAttack = (info) => {
+      addBullet(info);
+      // bullets.push(info);
+    };
+
     return {
+      bullets,
       planeInfo,
       enemyPlanes,
+      handleAttack,
     };
   },
   render(ctx) {
+    const bullets = () => {
+      return ctx.bullets.map((info) => {
+        return h(Bullet, { x: info.x, y: info.y });
+      });
+    };
+
     const createEnemyPlanes = () => {
       return ctx.enemyPlanes.map((info) => {
         return h(EnemyPlane, { x: info.x, y: info.y });
@@ -51,11 +69,29 @@ export default defineComponent({
     };
     return h("Container", [
       h(Map),
-      h(Plane, { x: ctx.planeInfo.x, y: ctx.planeInfo.y }),
+      h(Plane, {
+        x: ctx.planeInfo.x,
+        y: ctx.planeInfo.y,
+        onAttack: ctx.handleAttack,
+      }),
       ...createEnemyPlanes(),
+      ...bullets(),
     ]);
   },
 });
+
+function useBullets() {
+  const bullets = reactive([]);
+  const moveBullets = () => {
+    bullets.forEach((bullet) => {
+      bullet.y--;
+    });
+  };
+  const addBullet = (info) => {
+    bullets.push(info);
+  };
+  return { bullets, moveBullets, addBullet };
+}
 
 function useEnemyPlanes() {
   const enemyPlanes = reactive([
