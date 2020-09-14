@@ -1,8 +1,11 @@
 import { Application } from "pixi.js";
 
-const game = new Application({
-  width: 750,
-  height: 1080,
+export const gameWidth = 750;
+export const gameHeight = 800;
+
+export const game = new Application({
+  width: gameWidth,
+  height: gameHeight,
 });
 document.body.append(game.view);
 
