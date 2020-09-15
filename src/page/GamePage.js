@@ -16,44 +16,19 @@ import { hitTestObject } from "../utils";
 export default defineComponent({
   setup(_, { emit }) {
     const { planeInfo } = usePlane();
-
     // 对方
     const { enemyPlanes, moveEnemyPlanes } = useEnemyPlanes();
-
     // 子弹
     const { bullets, moveBullets, addBullet } = useBullets();
 
-    const handleTicker = () => {
-      // moveEnemyPlanes();
-      moveBullets();
-      // 检测碰撞
-      enemyPlanes.forEach((enemy) => {
-        if (hitTestObject(enemy, planeInfo)) {
-          // game over
-          emit("changePage", "EndPage");
-        }
-      });
-
-      // 敌方飞机和我方子弹
-      enemyPlanes.forEach((enemy, enemyIndex) => {
-        bullets.forEach((bullet, bulletIndex) => {
-          if (hitTestObject(enemy, bullet)) {
-            console.log("hit");
-            // 干掉敌方飞机
-            enemyPlanes.splice(enemyIndex, 1);
-            bullets.splice(bulletIndex, 1);
-          }
-        });
-      });
-    };
-
-    onMounted(() => {
-      game.ticker.add(handleTicker);
-    });
-
-    onUnmounted(() => {
-      game.ticker.remove(handleTicker);
-    });
+    useFighting(
+      moveEnemyPlanes,
+      moveBullets,
+      enemyPlanes,
+      planeInfo,
+      emit,
+      bullets
+    );
 
     const handleAttack = (info) => {
       addBullet(info);
@@ -66,8 +41,9 @@ export default defineComponent({
       handleAttack,
     };
   },
+
   render(ctx) {
-    const bullets = () => {
+    const createBullets = () => {
       return ctx.bullets.map((info) => {
         return h(Bullet, { x: info.x, y: info.y });
       });
@@ -78,6 +54,7 @@ export default defineComponent({
         return h(EnemyPlane, { x: info.x, y: info.y });
       });
     };
+
     return h("Container", [
       h(Map),
       h(Plane, {
@@ -86,10 +63,51 @@ export default defineComponent({
         onAttack: ctx.handleAttack,
       }),
       ...createEnemyPlanes(),
-      ...bullets(),
+      ...createBullets(),
     ]);
   },
 });
+
+function useFighting(
+  moveEnemyPlanes,
+  moveBullets,
+  enemyPlanes,
+  planeInfo,
+  emit,
+  bullets
+) {
+  const handleTicker = () => {
+    // moveEnemyPlanes();
+    moveBullets();
+    // 检测碰撞
+    enemyPlanes.forEach((enemy) => {
+      if (hitTestObject(enemy, planeInfo)) {
+        // game over
+        emit("changePage", "EndPage");
+      }
+    });
+
+    // 敌方飞机和我方子弹
+    enemyPlanes.forEach((enemy, enemyIndex) => {
+      bullets.forEach((bullet, bulletIndex) => {
+        if (hitTestObject(enemy, bullet)) {
+          console.log("hit");
+          // 干掉敌方飞机
+          enemyPlanes.splice(enemyIndex, 1);
+          bullets.splice(bulletIndex, 1);
+        }
+      });
+    });
+  };
+
+  onMounted(() => {
+    game.ticker.add(handleTicker);
+  });
+
+  onUnmounted(() => {
+    game.ticker.remove(handleTicker);
+  });
+}
 
 function useBullets() {
   const bullets = reactive([]);

@@ -29,15 +29,31 @@ const renderer = createRenderer({
     }
   },
 
-  createComment() {},
+  createText(text) {
+    return new Text(text);
+  },
 
-  parentNode() {},
-  nextSibling() {},
-  remove() {},
+  setElementText(node, text) {
+    const cText = new Text(text);
+    node.addChild(cText);
+  },
+
+  remove(el) {
+    const parent = el.parent;
+    if (parent) {
+      parent.removeChild(el);
+    }
+  },
 
   insert(el, parent) {
     parent.addChild(el);
   },
+
+  parentNode() {},
+
+  nextSibling() {},
+
+  createComment() {},
 });
 
 export function createApp(rootComponent) {
