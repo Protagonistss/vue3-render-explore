@@ -33,6 +33,18 @@ export default defineComponent({
           emit("changePage", "EndPage");
         }
       });
+
+      // 敌方飞机和我方子弹
+      enemyPlanes.forEach((enemy, enemyIndex) => {
+        bullets.forEach((bullet, bulletIndex) => {
+          if (hitTestObject(enemy, bullet)) {
+            console.log("hit");
+            // 干掉敌方飞机
+            enemyPlanes.splice(enemyIndex, 1);
+            bullets.splice(bulletIndex, 1);
+          }
+        });
+      });
     };
 
     onMounted(() => {
@@ -45,7 +57,6 @@ export default defineComponent({
 
     const handleAttack = (info) => {
       addBullet(info);
-      // bullets.push(info);
     };
 
     return {
@@ -88,16 +99,13 @@ function useBullets() {
     });
   };
   const addBullet = (info) => {
-    bullets.push(info);
+    bullets.push({ ...info, width: 61, height: 99 });
   };
   return { bullets, moveBullets, addBullet };
 }
 
 function useEnemyPlanes() {
-  const enemyPlanes = reactive([
-    { x: 10, y: 10, width: 308, height: 207 },
-    { x: 100, y: 200, width: 308, height: 207 },
-  ]);
+  const enemyPlanes = reactive([{ x: 10, y: 10, width: 308, height: 207 }]);
 
   const moveEnemyPlanes = () => {
     enemyPlanes.forEach((enemy) => {
