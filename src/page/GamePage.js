@@ -77,7 +77,7 @@ function useFighting(
   bullets
 ) {
   const handleTicker = () => {
-    // moveEnemyPlanes();
+    moveEnemyPlanes();
     moveBullets();
     // 检测碰撞
     enemyPlanes.forEach((enemy) => {

@@ -10,8 +10,8 @@ export default defineComponent({
       if (e.code === "Space") {
         console.log("shot");
         emit("attack", {
-          x: props.x + 100,
-          y: props.y,
+          x: props.x + 90,
+          y: props.y + 30,
         });
       }
     });
